@@ -10,6 +10,10 @@
           </div>
         </div>
       </template>
+      <template #footer="{ setData, onHide }">
+        <button @click="onHide">닫기</button>
+        <button @click="setData">선택</button>
+      </template>
     </DateSelectBox>
   </main>
 </template>

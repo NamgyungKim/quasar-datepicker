@@ -30,8 +30,7 @@
         </div>
         <hr />
         <div class="btn-wrap">
-          <!--            <q-btn outline style="color: #333" variant="outlined" label="취소" @click="onHide" />-->
-          <!--            <q-btn unelevated color="primary" label="적용" @click="getData" />-->
+          <slot name="footer" :onHide="onHide" :setData="setData" />
         </div>
       </div>
     </div>
@@ -117,7 +116,7 @@ const settingPeriod = (date) => {
 }
 
 // update:modelValue, update 이벤트 실행
-const getData = () => {
+const setData = () => {
   const { from, to } = range.value
   if (!from) {
     alert('날짜를 선택해주세요.')
