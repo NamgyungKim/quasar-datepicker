@@ -3,37 +3,35 @@
     <div class="slot" @click.stop="onShow">
       <slot :from="sendDate.from" :to="sendDate.to" :option="sendDate.option" :preview="preview" />
     </div>
-    <div v-if="showing" style="max-height: none" @before-hide="initDate">
-      <div class="date-dialog">
-        <div class="period-setting">
-          <p>기간 설정</p>
-          <ul>
-            <li
-              v-for="(item, i) in predoList"
-              :key="i"
-              :class="selectedPeriod.name === item.name ? 'select' : null"
-              @click="settingPeriod(item)"
-            >
-              {{ item.name }}
-            </li>
-          </ul>
+    <div v-if="showing" @before-hide="initDate" class="date-dialog">
+      <div class="period-setting">
+        <p>기간 설정</p>
+        <ul>
+          <li
+            v-for="(item, i) in predoList"
+            :key="i"
+            :class="selectedPeriod.name === item.name ? 'select' : null"
+            @click="settingPeriod(item)"
+          >
+            {{ item.name }}
+          </li>
+        </ul>
+      </div>
+      <div class="select-date">
+        <div class="preview">{{ preview }}</div>
+        <hr />
+        <div>
+          <MultiMonthSelection
+            v-model="range"
+            :disabled-after="disabledAfter"
+            :disabled-before="disabledBefore"
+            @click-date="clickDate"
+          />
         </div>
-        <div class="select-date">
-          <div class="preview">{{ preview }}</div>
-          <hr />
-          <div>
-            <MultiMonthSelection
-              v-model="range"
-              :disabled-after="disabledAfter"
-              :disabled-before="disabledBefore"
-              @click-date="clickDate"
-            />
-          </div>
-          <hr />
-          <div class="btn-wrap">
-            <!--            <q-btn outline style="color: #333" variant="outlined" label="취소" @click="cancel" />-->
-            <!--            <q-btn unelevated color="primary" label="적용" @click="getData" />-->
-          </div>
+        <hr />
+        <div class="btn-wrap">
+          <!--            <q-btn outline style="color: #333" variant="outlined" label="취소" @click="onHide" />-->
+          <!--            <q-btn unelevated color="primary" label="적용" @click="getData" />-->
         </div>
       </div>
     </div>
@@ -146,11 +144,6 @@ const initDate = () => {
   selectedPeriod.value = option
 }
 
-const cancel = () => {
-  initDate()
-  showing.value = false
-}
-
 const clickDate = () => {
   const { predoList } = props
   if (selectedPeriod.value.name !== '직접 입력') {
@@ -172,11 +165,23 @@ const resetData = () => {
   }
 }
 
+const onClose = (el: MouseEvent): void => {
+  const $clickEl: EventTarget = el.target!
+  if (!$clickEl.closest('.date-dialog')) {
+    onHide()
+  }
+}
+
 const onShow = () => {
   showing.value = true
+  const $window: Window = window!
+  $window.addEventListener('click', onClose)
 }
+
 const onHide = () => {
-  showing.value = true
+  // TODO : 닫을 경우 상태값 다시 받아오기
+  showing.value = false
+  initDate()
 }
 
 watch(props, () => {
@@ -247,13 +252,13 @@ onMounted(() => {
     background: #fff;
     color: var(--primary-color);
   }
-}
-
-.search-date {
-  position: relative;
-  justify-content: center;
-  gap: 10px;
-  align-items: center;
+  .search-date {
+    position: relative;
+    justify-content: center;
+    display: inline-block;
+    gap: 10px;
+    align-items: center;
+  }
 }
 
 .select-date {
