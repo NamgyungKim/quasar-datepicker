@@ -217,7 +217,16 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.search-date {
+  position: relative;
+  justify-content: center;
+  display: inline-block;
+  gap: 10px;
+  align-items: center;
+}
+
 .date-dialog {
+  position: absolute;
   left: 0;
   width: auto;
   --primary-color: #1867c0;
@@ -250,13 +259,6 @@ onMounted(() => {
   li.select {
     background: #fff;
     color: var(--primary-color);
-  }
-  .search-date {
-    position: relative;
-    justify-content: center;
-    display: inline-block;
-    gap: 10px;
-    align-items: center;
   }
 }
 
