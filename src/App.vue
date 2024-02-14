@@ -1,11 +1,13 @@
 <template>
   <main>
     <DateSelectBox v-model="range">
-      <template #default="{ from, to, option }">
+      <template #default="{ date }">
         <div class="selected-date">
-          <div class="option">{{ option.name }}</div>
+          <div class="option">
+            <!--            {{ option.name }}-->
+          </div>
           <div class="date">
-            {{ from ? from + ' ~ ' + to : '날짜를 선택해주세요' }}
+            {{ date ? date[0] + ' ~ ' + date[1] : '날짜를 선택해주세요' }}
             <!--            <q-icon icon="mdi-calendar" class="ml-2"></q-icon>-->
           </div>
         </div>
@@ -21,13 +23,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import DateSelectBox from '@/components/dateSelecter/DateSelectBox.vue'
+import NDate from '@/plugins/date'
 
 // import DateSelectBox from '@/components/dateSelecter/DateSelectBox.vue'
 const newDate = new Date()
-const range = ref({
-  from: newDate,
-  to: newDate
-})
+const date = new NDate()
+const range = ref([date.formatDate(newDate, 'YYYY-MM-DD'), date.formatDate(newDate, 'YYYY-MM-DD')])
 </script>
 
 <style scoped>

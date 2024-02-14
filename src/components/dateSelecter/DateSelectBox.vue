@@ -1,14 +1,15 @@
 <template>
   <div class="search-date">
     <div class="slot" @click.stop="onShow">
-      <slot :from="sendDate.from" :to="sendDate.to" :option="sendDate.option" :preview="preview" />
+      <!--   TODO: slot props  -->
+      <slot :date="range" />
     </div>
     <div v-if="showing" @before-hide="initDate" class="date-dialog">
-      <div class="period-setting">
+      <div v-if="selectDateList.length > 0" class="period-setting">
         <p>기간 설정</p>
         <ul>
           <li
-            v-for="(item, i) in predoList"
+            v-for="(item, i) in selectDateList"
             :key="i"
             :class="selectedPeriod.name === item.name ? 'select' : null"
             @click="settingPeriod(item)"
@@ -38,27 +39,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, type PropType, type UnwrapRef } from 'vue'
 import { addToDate, parseTimestamp, today } from '@quasar/quasar-ui-qcalendar/src/index.js'
 import MultiMonthSelection from '@/components/dateSelecter/MultiMonthSelection.vue'
 import NDate from '@/plugins/date.js'
+import type { SelectDateListType } from '@/type/type'
 const date = new NDate()
 
-const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토']
 const newDate = new Date()
+
+type DateType = [string, string]
+
 const props = defineProps({
   modelValue: {
-    type: Object
+    type: Object as PropType<DateType>
   },
-  predoList: {
-    type: Array,
-    default: () => [
-      {
-        name: '오늘',
-        from: new Date(),
-        to: new Date()
-      }
-    ]
+  selectDateList: {
+    type: Array as PropType<SelectDateListType>,
+    default: () => []
   },
   disabledAfterDate: {
     type: Boolean,
@@ -70,29 +68,20 @@ const props = defineProps({
   }
 })
 const emit = defineEmits(['update:modelValue', 'update'])
-const showing = ref(false)
-const range = ref({
-  from: newDate,
-  to: newDate
-})
-const sendDate = ref({
-  from: props.modelValue.from,
-  to: props.modelValue.to,
-  option: props.predoList[0]
-})
-const selectedPeriod = ref(props.predoList[0])
+const showing = ref<UnwrapRef<Boolean>>(false)
+const range = ref<UnwrapRef<[string, string]>>(['', ''])
+
+const selectedPeriod = ref(props.selectDateList[0])
 
 const preview = computed(() => {
-  const { from, to } = range.value
+  const [from, to] = range.value
   if (!from) {
     return '날짜를 선택해 주세요'
   }
 
-  const startDate = from ? date.formatDate(from, 'YYYY-MM-DD') : ''
-  const startDated = from ? date.formatDate(from, 'd') : ''
-  const endDate = to ? date.formatDate(to, 'YYYY-MM-DD') : ''
-  const endDated = to ? date.formatDate(to, 'd') : ''
-  return `${startDate} ${WEEKDAY[Number(startDated)]} ~ ${endDate} ${WEEKDAY[Number(endDated)]}`
+  const startDate = from ? date.formatDate(new Date(from), 'YYYY-MM-DD ddd') : ''
+  const endDate = to ? date.formatDate(new Date(to), 'YYYY-MM-DD ddd') : ''
+  return `${startDate} ~ ${endDate}`
 })
 
 // disabled
@@ -110,62 +99,36 @@ const disabledBefore = computed(() => {
 })
 
 // 기간설정
-const settingPeriod = (date) => {
-  selectedPeriod.value = date
+const settingPeriod = (date: DateType): void => {
   range.value = date
 }
 
 // update:modelValue, update 이벤트 실행
 const setData = () => {
-  const { from, to } = range.value
+  const [from, to] = range.value
   if (!from) {
     alert('날짜를 선택해주세요.')
     return
   }
-  sendDate.value = { ...range.value, option: selectedPeriod.value }
-  emit('update:modelValue', {
-    from,
-    to,
-    option: selectedPeriod.value
-  })
-  emit('update', {
-    from,
-    to,
-    option: selectedPeriod.value
-  })
+  emit('update:modelValue', range.value)
+  emit('update', range.value)
   showing.value = false
 }
 
 // 초기값 세팅
 const initDate = () => {
-  const { to, from, option } = sendDate.value
-  range.value = { to, from }
-  selectedPeriod.value = option
+  const { modelValue } = props
+  range.value = modelValue!
 }
 
 const clickDate = () => {
-  const { predoList } = props
-  if (selectedPeriod.value.name !== '직접 입력') {
-    selectedPeriod.value = predoList[predoList.length - 1]
-  }
+  // const { selectDateList } = props
 }
 
-const resetData = () => {
-  selectedPeriod.value = props.predoList[props.predoList.length - 1]
-  sendDate.value = {
-    from: undefined,
-    to: undefined,
-    option: selectedPeriod.value
-  }
-  range.value = {
-    from: undefined,
-    to: undefined,
-    option: props.predoList[0]
-  }
-}
+const resetData = () => {}
 
 const onClose = (el: MouseEvent): void => {
-  const $clickEl: EventTarget = el.target!
+  const $clickEl = el.target as HTMLElement
   if (!$clickEl.closest('.date-dialog')) {
     onHide()
   }
@@ -184,35 +147,33 @@ const onHide = () => {
 }
 
 watch(props, () => {
-  const { modelValue, predoList } = props
-  if (modelValue.from) {
-    range.value = {
-      from: modelValue.from,
-      to: modelValue.to
-    }
-    for (const item of predoList) {
-      const { from, to } = item
-      if (modelValue.from === from && modelValue.to === to) {
-        selectedPeriod.value = item
-      }
-    }
-    sendDate.value = { ...range.value, option: selectedPeriod.value }
-  }
-  if (!modelValue.from) {
-    resetData()
-  }
+  const { modelValue, selectDateList } = props
+  // if (modelValue.from) {
+  //   range.value = {
+  //     from: modelValue.from,
+  //     to: modelValue.to
+  //   }
+  //   for (const item of selectDateList) {
+  //     const { from, to } = item
+  //     if (modelValue.from === from && modelValue.to === to) {
+  //       selectedPeriod.value = item
+  //     }
+  //   }
+  // }
+  // if (!modelValue.from) {
+  //   resetData()
+  // }
 })
 
 onMounted(() => {
   const today = date.formatDate(newDate, 'MMMM-MM-DD')
-  const { modelValue, predoList } = props
-  const { from, to } = modelValue
+  const { modelValue, selectDateList } = props
+  const [from, to] = modelValue!
 
   if (from !== today && to !== today) {
-    selectedPeriod.value = predoList[predoList.length - 1]
+    selectedPeriod.value = selectDateList[selectDateList.length - 1]
   }
-  range.value = { from, to }
-  sendDate.value = { from, to, option: selectedPeriod.value }
+  range.value = modelValue!
 })
 </script>
 

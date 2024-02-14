@@ -85,17 +85,47 @@ import {
 import '@quasar/quasar-ui-qcalendar/src/QCalendarVariables.sass'
 import '@quasar/quasar-ui-qcalendar/src/QCalendarTransitions.sass'
 import '@quasar/quasar-ui-qcalendar/src/QCalendarMonth.sass'
-import { ref, computed, watch, onMounted, onBeforeMount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeMount, type PropType } from 'vue'
 import IconChevronLeft from '@/components/icons/IconChevronLeft.vue'
 import IconChevronRight from '@/components/icons/IconChevronRight.vue'
+import type { DateType } from '@/type/type'
 
-function leftClick(e) {
-  return e.button === 0
+type ScopeTimestamp = {
+  current: Boolean
+  date: String
+  day: Number
+  disabled: Boolean
+  doy: Number
+  future: Boolean
+  hasDay: Boolean
+  hasTime: Boolean
+  hour: Number
+  minute: Number
+  month: Number
+  past: Boolean
+  time: String
+  weekday: Number
+  workweek: Number
+  year: Number
 }
+
+type ScopeType = {
+  activeDate: Boolean
+  disabled: Boolean
+  droppable: Boolean
+  hasMonth: Boolean
+  miniMode: Boolean
+  outside: Boolean
+  timestamp: ScopeTimestamp
+}
+
 const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토']
 const emit = defineEmits(['update:modelValue', 'click-date'])
+
 const props = defineProps({
-  modelValue: Object,
+  modelValue: {
+    type: Object as PropType<DateType>
+  },
   disabledBefore: {
     type: String,
     default: undefined
@@ -106,15 +136,15 @@ const props = defineProps({
   }
 })
 
-const selectedDate1 = ref(today()),
-  selectedDate2 = ref(today()),
-  calendar1 = ref(null),
-  calendar2 = ref(null),
-  anchorTimestamp = ref(null),
-  otherTimestamp = ref(null),
-  mouseDown = ref(false),
-  mobile = ref(true),
-  hover = ref(false)
+const selectedDate1 = ref<String>(today()),
+  selectedDate2 = ref<String>(today()),
+  calendar1 = ref<InstanceType<typeof QCalendarMonth>>(null),
+  calendar2 = ref<InstanceType<typeof QCalendarMonth>>(null),
+  anchorTimestamp = ref<ScopeTimestamp | null>(null),
+  otherTimestamp = ref<ScopeTimestamp | null>(null),
+  mouseDown = ref<Boolean>(false),
+  mobile = ref<Boolean>(true),
+  hover = ref<Boolean>(false)
 
 const canHover = computed(() => {
   return hover.value === true && mouseDown.value === true
@@ -124,9 +154,9 @@ const startEndDates = computed(() => {
   const dates = []
   if (anchorDayIdentifier.value !== false && otherDayIdentifier.value !== false) {
     if (anchorDayIdentifier.value <= otherDayIdentifier.value) {
-      dates.push(anchorTimestamp.value.date, otherTimestamp.value.date)
+      dates.push(anchorTimestamp.value?.date, otherTimestamp.value?.date)
     } else {
-      dates.push(otherTimestamp.value.date, anchorTimestamp.value.date)
+      dates.push(otherTimestamp.value?.date, anchorTimestamp.value?.date)
     }
   }
   return dates
@@ -146,14 +176,11 @@ const otherDayIdentifier = computed(() => {
   return false
 })
 
-onBeforeMount(() => {
-  selectedDate1.value = today()
-  let tm = parseTimestamp(selectedDate1.value)
-  tm = addToDate(tm, { month: 1 })
-  selectedDate2.value = tm.date
-})
+function leftClick(e: MouseEvent) {
+  return e.button === 0
+}
 
-function onMouseDownDay({ scope, event }) {
+function onMouseDownDay({ scope, event }: { scope: ScopeType; event: MouseEvent }) {
   if (leftClick(event)) {
     if (
       mobile.value === true &&
@@ -172,7 +199,7 @@ function onMouseDownDay({ scope, event }) {
   }
 }
 
-function onMouseUpDay({ scope, event }) {
+function onMouseUpDay({ scope, event }: { scope: ScopeType; event: MouseEvent }) {
   if (leftClick(event)) {
     // mouse is up, capture last and cancel selection
     otherTimestamp.value = scope.timestamp
@@ -180,14 +207,15 @@ function onMouseUpDay({ scope, event }) {
   }
 }
 
-function onMouseMoveDay({ scope, event }) {
+function onMouseMoveDay({ scope, event }: { scope: ScopeType; event: MouseEvent }) {
   if (mouseDown.value === true && scope.outside !== true) {
     otherTimestamp.value = scope.timestamp
   }
 }
 
 const setTimeStamp = () => {
-  const { from, to } = props.modelValue
+  if (props.modelValue?.length !== 2) return
+  const [from, to] = props.modelValue
   anchorTimestamp.value = from ? parseTimestamp(from) : null
   otherTimestamp.value = to ? parseTimestamp(to) : null
 }
@@ -206,35 +234,39 @@ function onNext() {
   calendar1.value.next()
   calendar2.value.next()
 }
-function onMoved(data) {
+function onMoved(data: ScopeTimestamp) {
   // console.log('onMoved', data);
 }
-function onChange(data) {
+function onChange(data: ScopeTimestamp) {
   // console.log('onChange', data);
 }
-function onClickDate(data) {
+function onClickDate(data: ScopeTimestamp) {
   const { value } = startEndDates
   emit('click-date', data)
-  emit('update:modelValue', {
-    from: value[0],
-    to: value[1]
-  })
+  emit('update:modelValue', value)
 }
-function onClickDay(data) {
+function onClickDay(data: ScopeTimestamp) {
   // console.log('onClickDay', data);
 }
-function onClickWorkweek(data) {
+function onClickWorkweek(data: ScopeTimestamp) {
   // console.log('onClickWorkweek', data);
 }
-function onClickHeadDay(data) {
+function onClickHeadDay(data: ScopeTimestamp) {
   // console.log('onClickHeadDay', data);
 }
-function onClickHeadWorkweek(data) {
+function onClickHeadWorkweek(data: ScopeTimestamp) {
   // console.log('onClickHeadWorkweek', data);
 }
 
 watch(props, () => {
   setTimeStamp()
+})
+
+onBeforeMount(() => {
+  selectedDate1.value = today()
+  let tm = parseTimestamp(selectedDate1.value)
+  tm = addToDate(tm, { month: 1 })
+  selectedDate2.value = tm.date
 })
 
 onMounted(() => {
