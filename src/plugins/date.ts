@@ -29,7 +29,7 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
     'Dec'
   ]
 
-class NDate {
+class QDate {
   private days: string[]
   private daysShort: string[]
   private months: string[]
@@ -50,7 +50,10 @@ class NDate {
     return num < 10 ? `0${num}` : num.toString()
   }
 
-  formatDate(timeStamp: number | Date, format: string) {
+  private baseFormatTemp = 'YYYY-MM-DD'
+  private millisecondsInADay = 1000 * 60 * 60 * 24
+
+  formatDate(timeStamp: number | Date | string, format: string) {
     const getDate = new Date(timeStamp)
 
     const fullYear = getDate.getFullYear()
@@ -60,14 +63,13 @@ class NDate {
     const hours12 = getDate.getHours() >= 12 ? getDate.getHours() - 12 : getDate.getHours()
     const minutes = getDate.getMinutes()
     const seconds = getDate.getSeconds()
-
     const day = getDate.getDay()
 
     return format
       .replace('YYYY', fullYear.toString())
       .replace('MMMM', MONTHS[month - 1])
       .replace('MMM', MONTHS_SHORT[month - 1])
-      .replace('MM', this.prependZero(month))
+      .replace('MM', this.prependZero(month + 1))
       .replace('DD', this.prependZero(date))
       .replace('dddd', DAYS[day])
       .replace('ddd', DAYS_SHORT[day])
@@ -78,6 +80,37 @@ class NDate {
       .replace('mm', minutes.toString())
       .replace('ss', seconds.toString())
   }
+
+  addDate(timeStamp: number | Date | string, numberOfDaysToAdd: number) {
+    const getDate = new Date(timeStamp)
+    const time = getDate.getTime()
+
+    const subtractedTime = time + numberOfDaysToAdd * this.millisecondsInADay
+    return this.formatDate(subtractedTime, this.baseFormatTemp)
+  }
+
+  subtractDate(timeStamp: number | Date | string, numberOfDaysToAdd: number) {
+    const getDate = new Date(timeStamp)
+    const time = getDate.getTime()
+
+    const subtractedTime = time - numberOfDaysToAdd * this.millisecondsInADay
+    return this.formatDate(subtractedTime, this.baseFormatTemp)
+  }
+
+  getDateOfWeek(timeStamp: number | Date | string, targetDay: 0 | 1 | 2 | 3 | 4 | 5 | 6): string {
+    const date = new Date(timeStamp)
+    const day = date.getDay()
+    const targetDate = new Date(date)
+    targetDate.setDate(date.getDate() - day + targetDay)
+
+    return this.formatDate(targetDate, this.baseFormatTemp)
+  }
 }
 
-export default NDate
+const date = new QDate()
+
+const newDate = new Date()
+const today = date.formatDate(newDate, 'YYYY-MM-DD')
+
+export { today }
+export default QDate
