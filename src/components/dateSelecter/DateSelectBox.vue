@@ -4,22 +4,26 @@
       <slot :date="props.modelValue" :option="optionName" />
     </div>
     <div v-if="showing" @before-hide="initDate" class="date-dialog">
-      <div v-if="selectDateList.length > 0" class="period-setting">
-        <p>기간 설정</p>
-        <ul>
-          <li
-            v-for="(item, i) in selectDateList"
-            :key="i"
-            :class="selectedPeriod?.name === item.name ? 'select' : null"
-            @click="settingPeriod(item)"
-          >
-            {{ item.name }}
-          </li>
-        </ul>
-      </div>
+      <slot name="selecter" :options="selectDateList" :onSelect="settingPeriod">
+        <div v-if="selectDateList.length > 0" class="period-setting">
+          <p>기간 설정</p>
+          <ul>
+            <li
+              v-for="(item, i) in selectDateList"
+              :key="i"
+              :class="selectedPeriod?.name === item.name ? 'select' : null"
+              @click="settingPeriod(item)"
+            >
+              {{ item.name }}
+            </li>
+          </ul>
+        </div>
+      </slot>
       <div class="select-date">
-        <div class="preview">{{ preview }}</div>
-        <hr />
+        <slot name="header">
+          <div class="preview">{{ preview }}</div>
+          <hr />
+        </slot>
         <div>
           <MultiMonthSelection
             v-model="range"
@@ -28,10 +32,7 @@
             @click-date="clickDate"
           />
         </div>
-        <hr />
-        <div class="btn-wrap">
-          <slot name="footer" :onHide="onHide" :setData="setData" />
-        </div>
+        <slot name="footer" :onHide="onHide" :setData="setData" />
       </div>
     </div>
   </div>
@@ -216,12 +217,6 @@ onMounted(() => {
     height: 1px;
     border: 0;
     margin: 20px 0;
-  }
-
-  .btn-wrap {
-    display: flex;
-    justify-content: end;
-    gap: 10px;
   }
 }
 
