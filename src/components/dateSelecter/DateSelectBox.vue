@@ -1,8 +1,7 @@
 <template>
   <div class="search-date">
     <div class="slot" @click.stop="onShow">
-      <!--   TODO: slot props  -->
-      <slot :date="range" />
+      <slot :date="props.modelValue" :option="optionName" />
     </div>
     <div v-if="showing" @before-hide="initDate" class="date-dialog">
       <div v-if="selectDateList.length > 0" class="period-setting">
@@ -11,7 +10,7 @@
           <li
             v-for="(item, i) in selectDateList"
             :key="i"
-            :class="selectedPeriod.name === item.name ? 'select' : null"
+            :class="selectedPeriod?.name === item.name ? 'select' : null"
             @click="settingPeriod(item)"
           >
             {{ item.name }}
@@ -42,13 +41,11 @@
 import { ref, computed, watch, onMounted, type PropType, type UnwrapRef } from 'vue'
 import { addToDate, parseTimestamp, today } from '@quasar/quasar-ui-qcalendar/src/index.js'
 import MultiMonthSelection from '@/components/dateSelecter/MultiMonthSelection.vue'
-import NDate from '@/plugins/date.js'
-import type { SelectDateListType } from '@/type/type'
-const date = new NDate()
+import QDate from '@/plugins/date.js'
+import type { DateType, SelectDateListType, SelectDateType } from '@/type/type'
+const date = new QDate()
 
 const newDate = new Date()
-
-type DateType = [string, string]
 
 const props = defineProps({
   modelValue: {
@@ -69,9 +66,10 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:modelValue', 'update'])
 const showing = ref<UnwrapRef<Boolean>>(false)
-const range = ref<UnwrapRef<[string, string]>>(['', ''])
+const range = ref<UnwrapRef<DateType>>([null, null])
 
-const selectedPeriod = ref(props.selectDateList[0])
+const selectedPeriod = ref<UnwrapRef<SelectDateType>>()
+const optionName = ref()
 
 const preview = computed(() => {
   const [from, to] = range.value
@@ -99,8 +97,9 @@ const disabledBefore = computed(() => {
 })
 
 // 기간설정
-const settingPeriod = (date: DateType): void => {
-  range.value = date
+const settingPeriod = (item: SelectDateType): void => {
+  range.value = item.date
+  selectedPeriod.value = item
 }
 
 // update:modelValue, update 이벤트 실행
@@ -110,6 +109,8 @@ const setData = () => {
     alert('날짜를 선택해주세요.')
     return
   }
+
+  optionName.value = selectedPeriod.value?.name
   emit('update:modelValue', range.value)
   emit('update', range.value)
   showing.value = false
@@ -125,8 +126,6 @@ const clickDate = () => {
   // const { selectDateList } = props
 }
 
-const resetData = () => {}
-
 const onClose = (el: MouseEvent): void => {
   const $clickEl = el.target as HTMLElement
   if (!$clickEl.closest('.date-dialog')) {
@@ -141,29 +140,9 @@ const onShow = () => {
 }
 
 const onHide = () => {
-  // TODO : 닫을 경우 상태값 다시 받아오기
   showing.value = false
   initDate()
 }
-
-watch(props, () => {
-  const { modelValue, selectDateList } = props
-  // if (modelValue.from) {
-  //   range.value = {
-  //     from: modelValue.from,
-  //     to: modelValue.to
-  //   }
-  //   for (const item of selectDateList) {
-  //     const { from, to } = item
-  //     if (modelValue.from === from && modelValue.to === to) {
-  //       selectedPeriod.value = item
-  //     }
-  //   }
-  // }
-  // if (!modelValue.from) {
-  //   resetData()
-  // }
-})
 
 onMounted(() => {
   const today = date.formatDate(newDate, 'MMMM-MM-DD')
@@ -172,6 +151,7 @@ onMounted(() => {
 
   if (from !== today && to !== today) {
     selectedPeriod.value = selectDateList[selectDateList.length - 1]
+    optionName.value = selectedPeriod.value?.name
   }
   range.value = modelValue!
 })

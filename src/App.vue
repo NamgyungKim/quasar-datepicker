@@ -1,10 +1,10 @@
 <template>
   <main>
-    <DateSelectBox v-model="range">
-      <template #default="{ date }">
+    <DateSelectBox v-model="range" :select-date-list="selectDateList">
+      <template #default="{ date, option }">
         <div class="selected-date">
           <div class="option">
-            <!--            {{ option.name }}-->
+            {{ option }}
           </div>
           <div class="date">
             {{ date ? date[0] + ' ~ ' + date[1] : '날짜를 선택해주세요' }}
@@ -21,14 +21,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, type UnwrapRef } from 'vue'
 import DateSelectBox from '@/components/dateSelecter/DateSelectBox.vue'
-import NDate from '@/plugins/date'
+import QDate, { today } from '@/plugins/date'
+import type { SelectDateListType } from '@/type/type'
 
 // import DateSelectBox from '@/components/dateSelecter/DateSelectBox.vue'
 const newDate = new Date()
-const date = new NDate()
-const range = ref([date.formatDate(newDate, 'YYYY-MM-DD'), date.formatDate(newDate, 'YYYY-MM-DD')])
+const qDate = new QDate()
+const range = ref([
+  qDate.formatDate(newDate, 'YYYY-MM-DD'),
+  qDate.formatDate(newDate, 'YYYY-MM-DD')
+])
+const selectDateList = ref<UnwrapRef<SelectDateListType>>([
+  {
+    name: '오늘',
+    date: [today, today]
+  },
+  {
+    name: '어제',
+    date: [qDate.subtractDate(today, 1), qDate.subtractDate(today, 1)]
+  },
+  {
+    name: '30일',
+    date: [qDate.subtractDate(today, 30), today]
+  },
+  {
+    name: '직접선택',
+    date: [null, null]
+  }
+])
 </script>
 
 <style scoped>

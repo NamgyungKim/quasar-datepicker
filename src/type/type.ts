@@ -1,4 +1,4 @@
-export type DateType = [string, string]
+export type DateType = [string, string] | [null, null]
 
 export type SelectDateType = {
   name: String
