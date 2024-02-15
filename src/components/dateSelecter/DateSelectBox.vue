@@ -42,7 +42,7 @@ import { ref, computed, watch, onMounted, type PropType, type UnwrapRef } from '
 import { addToDate, parseTimestamp, today } from '@quasar/quasar-ui-qcalendar/src/index.js'
 import MultiMonthSelection from '@/components/dateSelecter/MultiMonthSelection.vue'
 import QDate from '@/plugins/date.js'
-import type { DateType, SelectDateListType, SelectDateType } from '@/type/type'
+import type { DateType, ScopeType, SelectDateListType, SelectDateType } from '@/type/type'
 const date = new QDate()
 
 const newDate = new Date()
@@ -64,7 +64,7 @@ const props = defineProps({
     default: false
   }
 })
-const emit = defineEmits(['update:modelValue', 'update'])
+const emit = defineEmits(['update:modelValue', 'update', 'click:date'])
 const showing = ref<UnwrapRef<Boolean>>(false)
 const range = ref<UnwrapRef<DateType>>([null, null])
 
@@ -122,8 +122,8 @@ const initDate = () => {
   range.value = modelValue!
 }
 
-const clickDate = () => {
-  // const { selectDateList } = props
+const clickDate = (data: { event: MouseEvent; scope: ScopeType }): void => {
+  emit('click:date', date)
 }
 
 const onClose = (el: MouseEvent): void => {

@@ -88,36 +88,7 @@ import '@quasar/quasar-ui-qcalendar/src/QCalendarMonth.sass'
 import { ref, computed, watch, onMounted, onBeforeMount, type PropType } from 'vue'
 import IconChevronLeft from '@/components/icons/IconChevronLeft.vue'
 import IconChevronRight from '@/components/icons/IconChevronRight.vue'
-import type { DateType } from '@/type/type'
-
-type ScopeTimestamp = {
-  current: Boolean
-  date: String
-  day: Number
-  disabled: Boolean
-  doy: Number
-  future: Boolean
-  hasDay: Boolean
-  hasTime: Boolean
-  hour: Number
-  minute: Number
-  month: Number
-  past: Boolean
-  time: String
-  weekday: Number
-  workweek: Number
-  year: Number
-}
-
-type ScopeType = {
-  activeDate: Boolean
-  disabled: Boolean
-  droppable: Boolean
-  hasMonth: Boolean
-  miniMode: Boolean
-  outside: Boolean
-  timestamp: ScopeTimestamp
-}
+import type { DateType, ScopeTimestamp, ScopeType } from '@/type/type'
 
 const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토']
 const emit = defineEmits(['update:modelValue', 'click-date'])
