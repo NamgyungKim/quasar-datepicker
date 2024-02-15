@@ -65,20 +65,29 @@ class QDate {
     const seconds = getDate.getSeconds()
     const day = getDate.getDay()
 
+    const MONTHS_Key = 'Q@@@@'
+    const MONTHS_SHORT_Key = 'Q@@@'
+    const DAYS_Key = 'Q!!!!'
+    const DAYS_SHORT_Key = 'Q!!!'
+
     return format
       .replace('YYYY', fullYear.toString())
-      .replace('MMMM', MONTHS[month - 1])
-      .replace('MMM', MONTHS_SHORT[month - 1])
+      .replace('MMMM', MONTHS_Key)
+      .replace('MMM', MONTHS_SHORT_Key)
       .replace('MM', this.prependZero(month + 1))
       .replace('DD', this.prependZero(date))
-      .replace('dddd', DAYS[day])
-      .replace('ddd', DAYS_SHORT[day])
+      .replace('dddd', DAYS_Key)
+      .replace('ddd', DAYS_SHORT_Key)
       .replace('dd', this.prependZero(day))
       .replace('d', day.toString())
       .replace('HH', hours24.toString())
       .replace('hh', hours12.toString())
       .replace('mm', minutes.toString())
       .replace('ss', seconds.toString())
+      .replace(MONTHS_Key, MONTHS[month - 1])
+      .replace(MONTHS_SHORT_Key, MONTHS_SHORT[month - 1])
+      .replace(DAYS_Key, DAYS[day])
+      .replace(DAYS_SHORT_Key, DAYS_SHORT[day])
   }
 
   addDate(timeStamp: number | Date | string, numberOfDaysToAdd: number) {
