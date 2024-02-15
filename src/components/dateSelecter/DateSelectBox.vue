@@ -192,7 +192,7 @@ onMounted(() => {
   border-radius: 4px;
   line-height: 36px;
   cursor: pointer;
-  min-width: 320px;
+  min-width: 400px;
 
   .option {
     padding: 0 10px;
