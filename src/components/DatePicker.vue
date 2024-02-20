@@ -60,8 +60,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, type PropType, type UnwrapRef } from 'vue'
 import { addToDate, parseTimestamp, today } from '@quasar/quasar-ui-qcalendar/src/index.js'
-import MultiMonthSelection from '@/components/dateSelecter/MultiMonthSelection.vue'
-import QDate from '@/plugins/date.js'
+import MultiMonthSelection from '@/components/MultiMonthSelection.vue'
+import QDate from '@/plugins/date'
 import type { DateType, ScopeType, SelectDateListType, SelectDateType } from '@/type/type'
 const date = new QDate()
 
@@ -73,7 +73,7 @@ const props = defineProps({
   },
   selectDateList: {
     type: Array as PropType<SelectDateListType>,
-    default: () => []
+    default: []
   },
   disabledAfterDate: {
     type: Boolean,

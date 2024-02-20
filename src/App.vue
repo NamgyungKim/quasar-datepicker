@@ -1,32 +1,15 @@
 <template>
   <main>
-    <DateSelectBox v-model="range" :select-date-list="selectDateList">
-      <template #default="{ date, option }">
-        <div class="selected-date">
-          <div class="option">
-            {{ option }}
-          </div>
-          <div class="date">
-            {{ date ? date[0] + ' ~ ' + date[1] : '날짜를 선택해주세요' }}
-            <!--            <q-icon icon="mdi-calendar" class="ml-2"></q-icon>-->
-          </div>
-        </div>
-      </template>
-      <template #footer="{ setData, onHide }">
-        <button @click="onHide">닫기</button>
-        <button @click="setData">선택</button>
-      </template>
-    </DateSelectBox>
+    <DatePicker v-model="range" :select-date-list="selectDateList" />
   </main>
 </template>
 
 <script setup lang="ts">
 import { ref, type UnwrapRef } from 'vue'
-import DateSelectBox from '@/components/dateSelecter/DateSelectBox.vue'
+import DatePicker from '@/components/DatePicker.vue'
 import QDate, { today } from '@/plugins/date'
 import type { SelectDateListType } from '@/type/type'
 
-// import DateSelectBox from '@/components/dateSelecter/DateSelectBox.vue'
 const newDate = new Date()
 const qDate = new QDate()
 const range = ref([
@@ -53,28 +36,21 @@ const selectDateList = ref<UnwrapRef<SelectDateListType>>([
 ])
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 main {
   width: 100%;
   height: 100%;
 }
 
-.selected-date {
-  display: inline-flex;
-  border: 1px solid rgba(0, 0, 0, 0.24);
-  border-radius: 4px;
-  line-height: 36px;
-  cursor: pointer;
-  min-width: 320px;
-
-  .option {
-    padding: 0 10px;
-    min-width: 100px;
-  }
-
-  .date {
-    padding: 0 10px;
-    border-left: 1px solid #ccc;
-  }
+hr {
+  background: #eee;
+  height: 1px;
+  border: 0;
+  margin: 20px 0;
+}
+.btn-wrap {
+  display: flex;
+  justify-content: end;
+  gap: 10px;
 }
 </style>
