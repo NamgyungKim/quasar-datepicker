@@ -1,15 +1,30 @@
-import { fileURLToPath, URL } from 'node:url'
+import { fileURLToPath, resolve, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import vueJsx from '@vitejs/plugin-vue-jsx'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), vueJsx()],
+  plugins: [vue()],
   resolve: {
+    dedupe: ['vue'],
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  },
+  build: {
+    lib: {
+      entry: resolve(__dirname, 'quasar-datepicker/src/components/index.js'),
+      name: 'quasar-datepicker',
+      fileName: 'quasar-datepicker'
+    },
+    rollupOptions: {
+      external: ['vue'],
+      output: {
+        globals: {
+          vue: 'Vue'
+        }
+      }
     }
   }
 })
