@@ -1,6 +1,6 @@
 {
   "name": "quasar-datepicker",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Datepicker ui component based on quasar-ui-qcalendar",
   "private": false,
   "type": "module",
