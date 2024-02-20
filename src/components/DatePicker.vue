@@ -206,6 +206,7 @@ onMounted(() => {
 }
 
 .date-dialog {
+  z-index: 100;
   position: absolute;
   left: 0;
   width: auto;
