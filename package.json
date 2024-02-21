@@ -1,18 +1,20 @@
 {
   "name": "quasar-datepicker",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Datepicker ui component based on quasar-ui-qcalendar",
   "private": false,
   "type": "module",
   "main": "./dist/quasar-datepicker.umd.cjs",
   "module": "./dist/quasar-datepicker.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "import": "./dist/quasar-datepicker.js",
       "require": "./dist/quasar-datepicker.umd.cjs"
     },
-    "./style" : "./dist/style.css",
+    "./style": "./dist/style.css",
     "./qdate": "./src/plugins/date.ts"
   },
   "scripts": {
@@ -21,7 +23,8 @@
     "build": "vite build",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "publish": "npm publish"
   },
   "peerDependencies": {
     "@quasar/quasar-ui-qcalendar": "^4.0.0-beta.16",
